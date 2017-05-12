@@ -30,7 +30,7 @@ std::list<double> bar(void)
 // Forward declarations
 std::list<double> connectToTcpServer(void);
 void destroy();
-void sigIntHandler (int signum);
+void sigHandler(int signum);
 
 
 TaskScheduler * ts;
@@ -45,9 +45,9 @@ int main(int argc, char ** argv) {
 
     ts = new TaskScheduler(argv[1]);
 
-    signal(SIGABRT, sigIntHandler);
-    signal(SIGINT, sigIntHandler);
-    signal(SIGTERM, sigIntHandler);
+    signal(SIGABRT, sigHandler);
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
     t1 = new Task("foo", foo, 2);
     t2 = new Task("bar", bar, 4);
@@ -86,7 +86,7 @@ void destroy()
 }
 
 
-void sigIntHandler (int signum)
+void sigHandler(int signum)
 {
     destroy();
     std::cout << "Task scheduler terminated.\n";

@@ -24,7 +24,7 @@ class TaskScheduler {
 private:
 
     /*
-     * Contains tasks to run.
+     * Contains tasks that need to be scheduled.
      * */
     std::list<Task*> m_tasks;
 
@@ -33,10 +33,14 @@ private:
      * */
     Database m_db;
 
+    /*
+     * Any metrics that needed to be added to the database, will be added to this Q.
+     * The database thread continuously inserts these metrics into db.
+     * */
     boost::lockfree::queue<Metric * > m_metricsQ;
 
     /*
-     * Indicates whether task scheduler needs to terminate its work.
+     * Indicates whether task scheduler needs to terminate its execution.
      * */
     boost::atomic<bool> m_exit;
 
@@ -50,19 +54,20 @@ private:
      * */
     bool m_updatedAggregateMetrics;
 
-
     /*
      * Stores the names of tasks and the corresponding number of metrics they output.
+     * Needed for altering the tables for each task, or for updating aggregate metrics.
      * */
     std::unordered_map<std::string, int> m_tasksNumMetrics;
 
     /*
-     * Inserts a metric into the database.
+     * Inserts a metric record into the database.
+     * TODO remove tableColsInited
      * */
     void insertMetric(Metric & metric, std::unordered_map<std::string, int> & tableColsInited);
 
     /*
-     * Routine designed for the thread responsible for reading the user's command.
+     * Routine designated for the thread responsible for reading the user's command.
      * */
     void userInputThreadTask();
 
@@ -78,6 +83,9 @@ private:
      * */
     void threadTask(Task * task);
 
+    /*
+     * Updates aggregate metrics, such as min, max, avg, for each metric of each task in the database.
+     * */
     void updateAggregateMetrics();
 
 public:
@@ -99,7 +107,7 @@ public:
     void addTask(Task * task);
 
     /*
-     * Change the relative order in which it will execute compared to other tasks.
+     * Change the scheduling order of the task.
      * @param order - starts with 0 - means the task will be executed first
      * */
     void changeTaskOrder(Task * task, int order);

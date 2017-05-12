@@ -11,7 +11,14 @@
 
 class Database {
 private:
+    /*
+     * sqlite3 database connection.
+     * */
     sqlite3 * m_database;
+
+    /*
+     * Name of the database.
+     * */
     std::string m_dbName;
 
     /*
@@ -32,6 +39,10 @@ private:
      * */
     std::string constructInsertQuery(std::string & tableName, std::list<double> & values);
 
+    /*
+     * Execute a sqlite statement.
+     * @param error - what the error message in the log should contain.
+     * */
     bool executeStm(std::string & stm, std::string & error);
 
 public:
@@ -55,13 +66,23 @@ public:
     bool insertRecord(std::string & tableName, std::list<double> & values);
 
     /*
-     *
+     * Create a table 'tableName' with an initial extra column for one metric.
      * */
     bool createTable(std::string &tableName);
 
-
+    /*
+     * Create a table to store aggregate metrics.
+     * */
     bool createAggregateMetricTable();
+
+    /*
+     * Update aggregate metrics.
+     * */
     bool updateAggregateMetric(std::string metricType, std::string & tableName, int colNum);
+
+    /*
+     * Alter a table to add an extra column.
+     * */
     bool addColumn(std::string & tableName, std::string & colName);
 };
 

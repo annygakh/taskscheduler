@@ -96,7 +96,6 @@ bool Database::executeStm(std::string & stm, std::string & error)
 std::string Database::constructInsertQuery(std::string & tableName, std::list<double> & values)
 {
     std::stringstream ss;
-
     ss << "insert into " << tableName << " (";
 
     std::string separator = "";

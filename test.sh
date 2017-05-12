@@ -15,7 +15,7 @@ rm -f Database_Actions_log.txt
 rm -f Database_Records_log.txt
 rm -f Log_file.txt
 
-echo "------ Running expect script. Do not input anything. ------"
+echo "------ Running expect script. Input your pwd if prompted. ------"
 VAR=$(sudo expect -c'
 spawn ./taskscheduler '$DB_NAME'
 expect "Enter 'exit' to quit task scheduler: "

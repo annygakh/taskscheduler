@@ -24,8 +24,7 @@ TaskScheduler::TaskScheduler(std::string databaseName)
 bool TaskScheduler::initialize()
 {
     if (!m_db.initialize()) return false;
-    int j = 0;
-    for (auto i = m_tasks.begin(); i != m_tasks.end(); i++, j++)
+    for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
     {
         std::string taskName = (*i)->getName();
         if (!m_db.createTable(taskName))
@@ -62,7 +61,6 @@ void TaskScheduler::threadTask(Task * task)
 {
     while (!m_exit)
     {
-        m_log.logMessage("About to run %s()\n", task->getName().c_str());
         std::list<double>  metrics = task->operator()();
         m_log.logMessage("%s()\n", task->getName().c_str());
 
@@ -94,7 +92,6 @@ void TaskScheduler::insertMetric(Metric & metric, std::unordered_map<std::string
         m_tasksNumMetrics.insert({taskName, rawMetrics.size()});
     }
     m_db.insertRecord(taskName, rawMetrics);
-    m_log.logMessage("Inserted metric for %s\n", taskName.c_str());
 }
 
 void TaskScheduler::databaseThreadTask()
