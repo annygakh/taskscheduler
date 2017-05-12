@@ -6,8 +6,8 @@
 #include <sstream>
 
 
-Database::Database()
-    : m_dbName("introdb3.db")
+Database::Database(std::string databaseName)
+    : m_dbName(databaseName)
     , m_recordsLog("Database_Records_log.txt")
     , m_stmLog("Database_Actions_log.txt")
 {

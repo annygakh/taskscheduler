@@ -32,6 +32,7 @@ private:
      * Database object.
      * */
     Database m_db;
+
     boost::lockfree::queue<Metric * > m_metricsQ;
 
     /*
@@ -80,7 +81,7 @@ private:
     void updateAggregateMetrics();
 
 public:
-    TaskScheduler();
+    TaskScheduler(std::string databaseName);
 
     /*
      * Needs to be invoked after adding tasks.

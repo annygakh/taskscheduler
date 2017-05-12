@@ -10,9 +10,9 @@
 #include "Log.h"
 
 
-TaskScheduler::TaskScheduler()
+TaskScheduler::TaskScheduler(std::string databaseName)
     : m_tasks()
-    , m_db()
+    , m_db(databaseName)
     , m_metricsQ(0) // Initial size is 0, but the Q is variable in size
     , m_exit(false)
     , m_log()

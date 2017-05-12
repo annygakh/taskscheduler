@@ -35,7 +35,7 @@ private:
     bool executeStm(std::string & stm, std::string & error);
 
 public:
-    Database();
+    Database(std::string databaseName);
 
     /*
      * Returns true if a database connection has been established successfully, false otherwise.

@@ -43,7 +43,7 @@ int main(int argc, char ** argv) {
         exit(1);
     }
 
-    ts = new TaskScheduler();
+    ts = new TaskScheduler(argv[1]);
 
     signal(SIGABRT, sigIntHandler);
     signal(SIGINT, sigIntHandler);
