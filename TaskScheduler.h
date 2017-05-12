@@ -23,42 +23,36 @@
 class TaskScheduler {
 private:
 
-    /*
-     * Contains tasks that need to be scheduled.
-     * */
+    //
+    // ----------- Variables
+    //
+
+    // Contains tasks that need to be scheduled.
     std::list<Task*> m_tasks;
 
-    /*
-     * Database object.
-     * */
+    // Database object.
     Database m_db;
 
-    /*
-     * Any metrics that needed to be added to the database, will be added to this Q.
-     * The database thread continuously inserts these metrics into db.
-     * */
+    // Any metrics that needed to be added to the database, will be added to this Q.
+    // The database thread continuously inserts these metrics into db.
     boost::lockfree::queue<Metric * > m_metricsQ;
 
-    /*
-     * Indicates whether task scheduler needs to terminate its execution.
-     * */
+    // Indicates whether task scheduler needs to terminate its execution.
     boost::atomic<bool> m_exit;
 
-    /*
-     * Log file.
-     * */
+    // Log file
     Log m_log;
 
-    /*
-     * Indicates whether aggregate metrics have been updated in the database.
-     * */
+    // Indicates whether aggregate metrics have been updated in the database.
     bool m_updatedAggregateMetrics;
 
-    /*
-     * Stores the names of tasks and the corresponding number of metrics they output.
-     * Needed for altering the tables for each task, or for updating aggregate metrics.
-     * */
-    std::unordered_map<std::string, int> m_tasksNumMetrics;
+    // Stores the names of tasks and the corresponding metrics they output.
+    // Needed for altering the tables for each task, or for updating aggregate metrics.
+    std::unordered_map<std::string, std::unordered_map<std::string, double>> m_tasksMetrics;
+
+    //
+    // ----------- Methods
+    //
 
     /*
      * Inserts a metric record into the database.

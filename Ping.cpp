@@ -12,7 +12,7 @@
 #include <cstring>
 #include <string>
 
-std::list<double> Ping::ping(void)
+std::unordered_map<std::string, double> Ping::ping(void)
 {
     bool succ = true, sockNeedToClose = false;
     std::chrono::steady_clock::time_point start, end;
@@ -58,6 +58,14 @@ std::list<double> Ping::ping(void)
             break;
         }
 
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000;
+        if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+            succ = false;
+            break;
+        }
+
         // send ping
         rc = 0;
 
@@ -93,8 +101,8 @@ std::list<double> Ping::ping(void)
     {
         timeElapsed = 0; // this way if the timeElapsed is 0, we know that the ping failed
     }
-    std::list<double> metrics;
-    metrics.push_back(timeElapsed);
+    std::unordered_map<std::string, double> metrics;
+    metrics.insert({"timeElapsed", timeElapsed});
 
     freeaddrinfo(servinfo);
     if (sockNeedToClose) close(sockfd);

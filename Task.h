@@ -6,20 +6,19 @@
 #define TASKSCHEDULER_TASK_H
 
 #include <string>
+#include <unordered_map>
 
 class Task {
 private:
     /*
-     * Assumptions: - the output of the tasks is simply a list of doubles,
-     *              representing different metrics. This can easily be changed into a map,
-     *              so that each metric has a corresponding name.
+     * Assumptions: - the output of the tasks is a map of metrics(doubles) with corresponding names.
      * */
-    std::list<double> (*m_funcToExec)(void);
+    std::unordered_map<std::string, double> (*m_funcToExec)(void);
     long m_interval;
     std::string m_name;
 
 public:
-    Task(std::string name, std::list<double> (* funcToExec)(void), long interval)
+    Task(std::string name, std::unordered_map<std::string, double> (* funcToExec)(void), long interval)
             : m_funcToExec(funcToExec)
             , m_interval(interval)
             , m_name(name)
@@ -32,7 +31,7 @@ public:
 
     std::string getName() { return m_name; }
 
-    std::list<double> operator()()
+    std::unordered_map<std::string, double> operator()()
     {
         return m_funcToExec();
     }

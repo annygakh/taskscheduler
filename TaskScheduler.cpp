@@ -17,7 +17,7 @@ TaskScheduler::TaskScheduler(std::string databaseName)
     , m_exit(false)
     , m_log()
     , m_updatedAggregateMetrics(false)
-    , m_tasksNumMetrics()
+    , m_tasksMetrics()
 {
 }
 
@@ -59,9 +59,10 @@ void TaskScheduler::changeTaskOrder(Task *task, int order)
 
 void TaskScheduler::threadTask(Task * task)
 {
+    m_log.logMessage("Beginning the thread for task %s\n", task->getName().c_str());
     while (!m_exit)
     {
-        std::list<double>  metrics = task->operator()();
+        std::unordered_map<std::string, double> metrics = task->operator()();
         m_log.logMessage("%s()\n", task->getName().c_str());
 
         Metric * metric = new Metric(task->getName(), metrics);
@@ -74,22 +75,16 @@ void TaskScheduler::threadTask(Task * task)
 void TaskScheduler::insertMetric(Metric & metric, std::unordered_map<std::string, int> & tableColsInited)
 {
     std::string taskName = metric.getTaskName();
-    std::list<double> rawMetrics = metric.getRawMetrics();
+    std::unordered_map<std::string, double> rawMetrics = metric.getRawMetrics();
     bool needToAlterTable = tableColsInited.find(taskName) == tableColsInited.end();
     if (needToAlterTable)
     {
-        int numExtraCols = rawMetrics.size() - 1; // to account for 1 existing metric column
-        std::stringstream colName;
-        for (int i = 0; i < numExtraCols; i++)
+        for (auto i : rawMetrics)
         {
-            colName << "col" << i + 2; // because the existing column starts with #1
-            std::string colNameString = colName.str();
-            m_db.addColumn(taskName, colNameString);
-            colName.str("");
-            colName.clear();
+            m_db.addColumn(taskName, i.first);
         }
-        tableColsInited.insert({taskName, 0}); // the second element does not matter;
-        m_tasksNumMetrics.insert({taskName, rawMetrics.size()});
+        tableColsInited.insert({taskName, rawMetrics.size()}); // the second element does not matter;
+        m_tasksMetrics.insert({taskName, rawMetrics});
     }
     m_db.insertRecord(taskName, rawMetrics);
 }
@@ -120,6 +115,7 @@ void TaskScheduler::databaseThreadTask()
     {
         insertMetric(metric, tableColsInited);
     }
+    m_log.logMessage("Finished inserting all of the outstanding metrics into the database\n");
 
     updateAggregateMetrics();
 }
@@ -165,21 +161,21 @@ void TaskScheduler::start()
 
 void TaskScheduler::updateAggregateMetrics()
 {
-
     if (m_updatedAggregateMetrics) return;
 
-    for (auto i : m_tasksNumMetrics)
+    for (auto i : m_tasksMetrics)
     {
         std::string taskName = i.first;
-        int numCols = i.second;
-        for (int j = 0; j < numCols; j++)
+        for (auto j : i.second)
         {
-            m_db.updateAggregateMetric("avg", taskName, j + 1);
-            m_db.updateAggregateMetric("max", taskName, j + 1);
-            m_db.updateAggregateMetric("min", taskName, j + 1);
+            m_db.updateAggregateMetric("avg", taskName, j.first);
+            m_db.updateAggregateMetric("max", taskName, j.first);
+            m_db.updateAggregateMetric("min", taskName, j.first);
+
         }
     }
     m_updatedAggregateMetrics = true;
+    m_log.logMessage("Finished updating all of the aggregate values for metrics.\n");
 }
 
 void TaskScheduler::deinitialize()

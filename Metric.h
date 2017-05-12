@@ -11,11 +11,11 @@
 class Metric {
 private:
     std::string  m_taskName;
-    std::list<double>  m_rawMetrics;
+    std::unordered_map<std::string, double>  m_rawMetrics;
 public:
     Metric() {}
 
-    Metric(std::string taskName, std::list<double> rawMetrics)
+    Metric(std::string taskName, std::unordered_map<std::string, double>rawMetrics)
             : m_taskName(taskName)
             , m_rawMetrics(rawMetrics)
     {
@@ -30,8 +30,8 @@ public:
     void setTaskName(std::string taskName) { m_taskName = taskName; }
     std::string getTaskName()const { return m_taskName; }
 
-    void setRawMetrics(std::list<double> rawMetrics) { m_rawMetrics = rawMetrics; }
-    std::list<double, std::allocator<double>> getRawMetrics()const { return m_rawMetrics; }
+    void setRawMetrics(std::unordered_map<std::string, double> rawMetrics) { m_rawMetrics = rawMetrics; }
+    std::unordered_map<std::string, double> getRawMetrics()const { return m_rawMetrics; }
 };
 
 

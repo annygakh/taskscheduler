@@ -37,7 +37,7 @@ private:
      * Construct a query in the following format
      * "insert into tableName (col1.... colN) values (val1.... valN)"
      * */
-    std::string constructInsertQuery(std::string & tableName, std::list<double> & values);
+    std::string constructInsertQuery(std::string & tableName, std::unordered_map<std::string, double> & values);
 
     /*
      * Execute a sqlite statement.
@@ -65,7 +65,7 @@ public:
     /*
      * Insert a record with 'values' into 'tableName'.
      * */
-    bool insertRecord(std::string & tableName, std::list<double> & values);
+    bool insertRecord(std::string & tableName, std::unordered_map<std::string, double> & values);
 
     /*
      * Create a table 'tableName' with an initial extra column for one metric.
@@ -80,12 +80,12 @@ public:
     /*
      * Update aggregate metrics.
      * */
-    bool updateAggregateMetric(std::string metricType, std::string & tableName, int colNum);
+    bool updateAggregateMetric(std::string metricType, std::string & tableName, std::string colName);
 
     /*
      * Alter a table to add an extra column.
      * */
-    bool addColumn(std::string & tableName, std::string & colName);
+    bool addColumn(std::string & tableName, std::string colName);
 };
 
 

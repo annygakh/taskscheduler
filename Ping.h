@@ -23,7 +23,7 @@ typedef struct {
 // from Unit Network Programming by Stevens, Fenner and Rudoff
 int32_t checksum(uint16_t *buf, int32_t len);
 
-std::list<double> ping(void);
+std::unordered_map<std::string, double> ping(void);
 
 }
 

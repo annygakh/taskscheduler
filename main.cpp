@@ -13,22 +13,22 @@
 #include "Ping.cpp"
 
 double foo1 = 0, bar1 = 0, bar2 = 0.6;
-std::list<double> foo(void)
+std::unordered_map<std::string, double> foo(void)
 {
-    std::list<double> metrics;
-    metrics.push_back(foo1++);
+    std::unordered_map<std::string, double> metrics;
+    metrics.insert({"foo1", foo1++});
     return metrics;
 }
-std::list<double> bar(void)
+std::unordered_map<std::string, double> bar(void)
 {
-    std::list<double> metrics;
-    metrics.push_back(bar1++);
-    metrics.push_back(bar2++);
+    std::unordered_map<std::string, double> metrics;
+    metrics.insert({"bar1", bar1++});
+    metrics.insert({"bar2", bar2++});
     return metrics;
 }
 
 // Forward declarations
-std::list<double> connectToTcpServer(void);
+std::unordered_map<std::string, double> connectToTcpServer(void);
 void destroy();
 void sigHandler(int signum);
 
@@ -96,7 +96,7 @@ void sigHandler(int signum)
 /*
  * Outputs the number of microseconds it took to connect to google.com at port 80
  * */
-std::list<double> connectToTcpServer(void)
+std::unordered_map<std::string, double> connectToTcpServer(void)
 {
     bool succ = true;
     std::chrono::steady_clock::time_point start, end;
@@ -154,8 +154,8 @@ std::list<double> connectToTcpServer(void)
     {
         timeElapsed = 0; // this way if the timeElapsed is 0, we know that tcp connection failed
     }
-    std::list<double> metrics;
-    metrics.push_back(timeElapsed);
+    std::unordered_map<std::string, double> metrics;
+    metrics.insert({"timeElapsed", timeElapsed});
 
     freeaddrinfo(servinfo);
     return metrics;

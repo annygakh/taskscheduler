@@ -23,8 +23,7 @@ bool Database::initialize()
 bool Database::createTable(std::string &tableName)
 {
     std::string stm = "create table if not exists " + tableName + " ( "
-            "id integer primary key AUTOINCREMENT, "
-            "col1 real"
+            "id integer primary key AUTOINCREMENT"
             ")";
     std::string errMsg = "cannot create table " + tableName;
     return executeStm(stm, errMsg);
@@ -36,9 +35,9 @@ bool Database::createAggregateMetricTable()
     std::string stm = "create table if not exists " + tableName + " ( "
                     "taskName text, "
                     "metricType text, " /* min, max, average */
-                    "colNum int, "
+                    "colName text, "
                     "value real,"
-                    "primary key (taskName, metricType, colNum))";
+                    "primary key (taskName, metricType, colName))";
     std::string errMsg = "cannot create table " + tableName;
     return executeStm(stm, errMsg);
 }
@@ -77,7 +76,7 @@ bool Database::columnExists(std::string &tableName, std::string &colName)
     return exists;
 }
 
-bool Database::addColumn(std::string & tableName, std::string & colName)
+bool Database::addColumn(std::string & tableName, std::string colName)
 {
     if (columnExists(tableName, colName)) return true;
 
@@ -86,27 +85,26 @@ bool Database::addColumn(std::string & tableName, std::string & colName)
     return  executeStm(stm, errMsg);
 }
 
-bool Database::updateAggregateMetric(std::string metricType, std::string & tableName, int colNum)
+bool Database::updateAggregateMetric(std::string metricType, std::string & tableName, std::string colName)
 {
     std::stringstream stm;
-    stm << "INSERT INTO aggregateMetrics SELECT ";
+    stm << "replace into aggregateMetrics SELECT ";
     stm << "\"" << tableName << "\",";
     stm << "\"" << metricType.c_str() << "\",";
-    stm << colNum << ",";
+    stm << "\'" << colName << "\',";
     if (metricType == "avg")
     {
         stm << "round(";
     }
-    stm << metricType.c_str();;
+    stm  << metricType.c_str();;
 
-    stm << "(col" << colNum << ")";
+    stm << "(" << colName << ")";
     if (metricType == "avg")
     {
         stm << ", 2)";
     }
     stm << " from " << tableName;
 
-    m_stmLog.logMessage("%s\n", stm.str().c_str());
     std::string errMsg = "cannot insert " + metricType + " value into aggregate metrics";
     std::string stmStr = stm.str();
     return  executeStm(stmStr, errMsg);
@@ -128,33 +126,36 @@ bool Database::executeStm(std::string & stm, std::string & error)
     return succ;
 }
 
-std::string Database::constructInsertQuery(std::string & tableName, std::list<double> & values)
+std::string Database::constructInsertQuery(std::string & tableName, std::unordered_map<std::string, double> & values)
 {
     std::stringstream ss;
     ss << "insert into " << tableName << " (";
 
     std::string separator = "";
     int j = 1;
-    for (auto i = values.begin(); i!= values.end(); i++, j++)
+
+    for (auto i : values)
     {
-
-        ss << separator << "col" << j;
+        ss << separator << i.first;
         separator = ",";
-
+        j++;
     }
+
     ss << ") values (";
 
     separator = "";
-    for (auto i = values.begin(); i != values.end(); i++)
+
+    for (auto i : values)
     {
-        ss << separator << (*i);
+        ss << separator << i.second;
         separator = ",";
     }
+
     ss << ")";
     return ss.str();
 }
 
-bool Database::insertRecord(std::string & tableName, std::list<double> & values)
+bool Database::insertRecord(std::string & tableName, std::unordered_map<std::string, double> & values)
 {
     bool succ = true;
     sqlite3_stmt * sql;
@@ -165,9 +166,10 @@ bool Database::insertRecord(std::string & tableName, std::list<double> & values)
     if (rc == SQLITE_OK)
     {
         int j = 0;
-        for (auto i = values.begin(); i != values.end(); i++, j++)
+        for (auto i : values)
         {
-            sqlite3_bind_double(sql, j, (*i));
+            sqlite3_bind_double(sql, j, i.second);
+            j++;
         }
 
         sqlite3_step(sql);
