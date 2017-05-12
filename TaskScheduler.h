@@ -10,11 +10,11 @@
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
 #include <unordered_map>
+
 #include "Task.h"
 #include "Metric.h"
 #include "Database.cpp"
 #include "Log.h"
-#include <unordered_map>
 
 /*
  * Main class responsible for task scheduling.
@@ -23,16 +23,46 @@
 class TaskScheduler {
 private:
 
+    /*
+     * Contains tasks to run.
+     * */
     std::list<Task*> m_tasks;
+
+    /*
+     * Database object.
+     * */
     Database m_db;
     boost::lockfree::queue<Metric * > m_metricsQ;
+
+    /*
+     * Indicates whether task scheduler needs to terminate its work.
+     * */
     boost::atomic<bool> m_exit;
+
+    /*
+     * Log file.
+     * */
     Log m_log;
+
+    /*
+     * Indicates whether aggregate metrics have been updated in the database.
+     * */
     bool m_updatedAggregateMetrics;
+
+
+    /*
+     * Stores the names of tasks and the corresponding number of metrics they output.
+     * */
     std::unordered_map<std::string, int> m_tasksNumMetrics;
 
+    /*
+     * Inserts a metric into the database.
+     * */
     void insertMetric(Metric & metric, std::unordered_map<std::string, int> & tableColsInited);
 
+    /*
+     * Routine designed for the thread responsible for reading the user's command.
+     * */
     void userInputThreadTask();
 
     /*
@@ -53,12 +83,12 @@ public:
     TaskScheduler();
 
     /*
-     * Needs to be invoked after the constructor to initialize necessary objects.
+     * Needs to be invoked after adding tasks.
      * */
     bool initialize();
 
     /*
-     * Needs to be invoked before the destructor to deinitilize necessary objects.
+     * Needs to be invoked before the destructor.
      * */
     void deinitialize();
 
@@ -82,8 +112,6 @@ public:
      * Start the task scheduler.
      * */
     void start();
-
-    ~TaskScheduler();
 
 };
 

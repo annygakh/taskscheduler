@@ -9,7 +9,7 @@
 Database::Database()
     : m_dbName("introdb3.db")
     , m_recordsLog("Database_Records_log.txt")
-    , m_stmLog("Database_Stm_log.txt")
+    , m_stmLog("Database_Actions_log.txt")
 {
 }
 
@@ -20,7 +20,7 @@ bool Database::initialize()
     return rc == SQLITE_OK;
 }
 
-bool Database::createTaskTable(std::string &tableName)
+bool Database::createTable(std::string &tableName)
 {
     std::string stm = "create table " + tableName + " ( " // TODO clean up the tableName - sql injection
             "id integer primary key AUTOINCREMENT, "
@@ -76,22 +76,6 @@ bool Database::updateAggregateMetric(std::string metricType, std::string & table
     std::string stmStr = stm.str();
     return  executeStm(stmStr, errMsg);
 }
-
-//bool Database::updateAllAggregateMetrics(std::map<std::string, int> & tasksCols)
-//{
-//    for (auto i : tasksCols)
-//    {
-//        std::string taskName = i.first;
-//        int numCols = i.second;
-//        for (int j = 0; j < numCols; j++)
-//        {
-//            updateAggregateMetric("avg", taskName, j + 1);
-//            updateAggregateMetric("max", taskName, j + 1);
-//            updateAggregateMetric("min", taskName, j + 1);
-//        }
-//    }
-//    return true;
-//}
 
 bool Database::executeStm(std::string & stm, std::string & error)
 {

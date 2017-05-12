@@ -2,10 +2,11 @@
 // Created by Anaid Gakhokidze on 2017-05-08.
 //
 
-#include "TaskScheduler.h"
 #include <thread>
 #include <vector>
 #include <sstream>
+
+#include "TaskScheduler.h"
 #include "Log.h"
 
 
@@ -20,6 +21,25 @@ TaskScheduler::TaskScheduler()
 {
 }
 
+bool TaskScheduler::initialize()
+{
+    if (!m_db.initialize()) return false;
+    int j = 0;
+    for (auto i = m_tasks.begin(); i != m_tasks.end(); i++, j++)
+    {
+        std::string taskName = (*i)->getName();
+        if (!m_db.createTable(taskName))
+        {
+            return false;
+        }
+    }
+    if (!m_db.createAggregateMetricTable())
+    {
+        return false;
+    }
+    return true;
+}
+
 void TaskScheduler::addTask(Task *task)
 {
     m_tasks.push_back(task);
@@ -31,7 +51,7 @@ void TaskScheduler::cancelTask(Task *task)
 }
 
 void TaskScheduler::changeTaskOrder(Task *task, int order)
-{// TODO test this
+{
     m_tasks.remove(task);
     std::list<Task*>::iterator itr = m_tasks.begin();
     std::advance(itr, order);
@@ -42,6 +62,7 @@ void TaskScheduler::threadTask(Task * task)
 {
     while (!m_exit)
     {
+        m_log.logMessage("About to run %s()\n", task->getName().c_str());
         std::list<double>  metrics = task->operator()();
         m_log.logMessage("%s()\n", task->getName().c_str());
 
@@ -73,6 +94,7 @@ void TaskScheduler::insertMetric(Metric & metric, std::unordered_map<std::string
         m_tasksNumMetrics.insert({taskName, rawMetrics.size()});
     }
     m_db.insertRecord(taskName, rawMetrics);
+    m_log.logMessage("Inserted metric for %s\n", taskName.c_str());
 }
 
 void TaskScheduler::databaseThreadTask()
@@ -142,24 +164,7 @@ void TaskScheduler::start()
     userInputThread.join();
 }
 
-bool TaskScheduler::initialize()
-{
-    if (!m_db.initialize()) return false;
-    int j = 0;
-    for (auto i = m_tasks.begin(); i != m_tasks.end(); i++, j++)
-    {
-        std::string taskName = (*i)->getName();
-        if (!m_db.createTaskTable(taskName))
-        {
-            return false;
-        }
-    }
-    if (!m_db.createAggregateMetricTable())
-    {
-        return false;
-    }
-    return true;
-}
+
 
 void TaskScheduler::updateAggregateMetrics()
 {
@@ -188,10 +193,3 @@ void TaskScheduler::deinitialize()
     }
     m_db.deinitialize();
 }
-
-TaskScheduler::~TaskScheduler()
-{
-    std::cout << "Whoops\n";
-}
-
-

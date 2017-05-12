@@ -39,19 +39,29 @@ public:
 
     /*
      * Returns true if a database connection has been established successfully, false otherwise.
-     * The user is responsible for calling deinitialize() even if initialize() returned false
+     * The user is responsible for calling deinitialize() even if initialize() returned false.
+     * Needs to be invoked after the constructor.
      * */
     bool initialize();
 
+    /*
+     * Needs to be invoked before the destructor.
+     * */
     void deinitialize();
 
+    /*
+     * Insert a record with 'values' into 'tableName'.
+     * */
     bool insertRecord(std::string & tableName, std::list<double> & values);
 
-    bool createTaskTable(std::string &tableName);
+    /*
+     *
+     * */
+    bool createTable(std::string &tableName);
+
+
     bool createAggregateMetricTable();
     bool updateAggregateMetric(std::string metricType, std::string & tableName, int colNum);
-
-
     bool addColumn(std::string & tableName, std::string & colName);
 };
 
