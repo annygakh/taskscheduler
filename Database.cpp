@@ -22,7 +22,7 @@ bool Database::initialize()
 
 bool Database::createTable(std::string &tableName)
 {
-    std::string stm = "create table " + tableName + " ( " // TODO clean up the tableName - sql injection
+    std::string stm = "create table if not exists " + tableName + " ( "
             "id integer primary key AUTOINCREMENT, "
             "col1 real"
             ")";
@@ -33,19 +33,54 @@ bool Database::createTable(std::string &tableName)
 bool Database::createAggregateMetricTable()
 {
     std::string tableName = "aggregateMetrics";
-    std::string stm = "create table " + tableName + " ( "
+    std::string stm = "create table if not exists " + tableName + " ( "
                     "taskName text, "
                     "metricType text, " /* min, max, average */
                     "colNum int, "
                     "value real,"
                     "primary key (taskName, metricType, colNum))";
     std::string errMsg = "cannot create table " + tableName;
-
     return executeStm(stm, errMsg);
+}
+
+bool Database::columnExists(std::string &tableName, std::string &colName)
+{
+    bool exists = false;
+    std::string s = "pragma table_info('" + tableName + "')";
+    sqlite3_stmt * stm;
+    if ((sqlite3_prepare(m_database, s.c_str(), -1, &stm, 0) == SQLITE_OK))
+    {
+        int cols = sqlite3_column_count(stm);
+        int result = 0;
+
+        while(true)
+        {
+            result = sqlite3_step(stm);
+            if (result == SQLITE_ROW)
+            {
+                std::stringstream currColName;
+                currColName << sqlite3_column_text(stm, 1);
+                if (currColName.str() == colName)
+                {
+                    m_stmLog.logMessage("Column %s exists. Will not alter table %s.\n", colName.c_str(), tableName.c_str());
+                    exists = true;
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    sqlite3_finalize(stm);
+    return exists;
 }
 
 bool Database::addColumn(std::string & tableName, std::string & colName)
 {
+    if (columnExists(tableName, colName)) return true;
+
     std::string stm = "ALTER TABLE " + tableName + " ADD " + colName + " real";
     std::string errMsg = "cannot add an extra column to table " + tableName;
     return  executeStm(stm, errMsg);

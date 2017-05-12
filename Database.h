@@ -45,6 +45,8 @@ private:
      * */
     bool executeStm(std::string & stm, std::string & error);
 
+    bool columnExists(std::string &tableName, std::string &colName);
+
 public:
     Database(std::string databaseName);
 

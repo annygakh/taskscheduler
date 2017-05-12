@@ -82,14 +82,14 @@ void destroy()
     delete t1;
     delete t2;
     delete t3;
-    std::cout << "Task scheduler terminated successfully.\n";
+    std::cout << "\nTask scheduler terminated successfully.\n";
 }
 
 
 void sigHandler(int signum)
 {
+    std::cout << "\nExiting task scheduler\n";
     destroy();
-    std::cout << "Task scheduler terminated.\n";
     exit(0);
 }
 
