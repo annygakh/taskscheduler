@@ -10,8 +10,9 @@
 #include "Log.h"
 
 
-TaskScheduler::TaskScheduler(std::string databaseName)
-    : m_tasks()
+TaskScheduler::TaskScheduler(std::string databaseName, int mode)
+    : m_mode(mode)
+    , m_tasks()
     , m_db(databaseName)
     , m_metricsQ(0) // Initial size is 0, but the Q is variable in size
     , m_exit(false)
@@ -142,7 +143,11 @@ void TaskScheduler::userInputThreadTask()
 void TaskScheduler::start()
 {
     std::thread dbThread(&TaskScheduler::databaseThreadTask, this);
-    std::thread userInputThread(&TaskScheduler::userInputThreadTask, this);
+    std::thread userInputThread;
+    if (m_mode == 0)
+    {
+        userInputThread = std::thread(&TaskScheduler::userInputThreadTask, this);
+    }
 
     std::vector<std::thread> threads;
     for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
@@ -154,7 +159,10 @@ void TaskScheduler::start()
         (*i).join();
     }
     dbThread.join();
-    userInputThread.join();
+    if (m_mode == 0)
+    {
+        userInputThread.join();
+    }
 }
 
 
@@ -185,4 +193,13 @@ void TaskScheduler::deinitialize()
         updateAggregateMetrics();
     }
     m_db.deinitialize();
+    m_log.logMessage("Task scheduler de-initialized successfully.\n");
+}
+
+void TaskScheduler::stop()
+{
+    if (m_mode == 1)
+    {
+        m_exit = true;
+    }
 }

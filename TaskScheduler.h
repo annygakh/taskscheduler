@@ -27,6 +27,11 @@ private:
     // ----------- Variables
     //
 
+    // Represents the mode of running task scheduler.
+    // 0 - Interactively. Takes user input, and uses it to know when to terminate
+    // 1 - Non interactive. stop() needs to be called to terminate the process
+    int m_mode;
+
     // Contains tasks that need to be scheduled.
     std::list<Task*> m_tasks;
 
@@ -83,7 +88,7 @@ private:
     void updateAggregateMetrics();
 
 public:
-    TaskScheduler(std::string databaseName);
+    TaskScheduler(std::string databaseName, int mode);
 
     /*
      * Needs to be invoked after adding tasks.
@@ -115,6 +120,11 @@ public:
      * Start the task scheduler.
      * */
     void start();
+
+    /*
+     * Stops the task scheduler if not running it interactively.
+     * */
+    void stop();
 
 };
 

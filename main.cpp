@@ -31,6 +31,7 @@ std::unordered_map<std::string, double> bar(void)
 std::unordered_map<std::string, double> connectToTcpServer(void);
 void destroy();
 void sigHandler(int signum);
+void stopHandler(int signum);
 
 
 TaskScheduler * ts;
@@ -39,12 +40,11 @@ Task * t1, * t2, * t3, *t4;
 int main(int argc, char ** argv) {
     if (argc < 2)
     {
-        std::cerr << " Usage: taskscheduler databaseName.db\n";
+        std::cerr << "Usage: taskscheduler databaseName.db\n";
         exit(1);
     }
 
-    ts = new TaskScheduler(argv[1]);
-
+    ts = new TaskScheduler(argv[1], 0);
     signal(SIGABRT, sigHandler);
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
@@ -91,6 +91,12 @@ void sigHandler(int signum)
     std::cout << "\nExiting task scheduler\n";
     destroy();
     exit(0);
+}
+
+// Can be indicated as a callback to stop the task scheduler after a certain number of time has passed.
+void stopHandler(int signum)
+{
+    ts->stop();
 }
 
 /*

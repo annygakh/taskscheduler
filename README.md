@@ -1,6 +1,5 @@
 # Task Scheduler
-Simple periodic task-scheduler written in C++. 
-Tasks are run on separate, configurable intervals.
+Simple periodic task-scheduler written in C++. Tasks are run on separate, configurable intervals.
 
 
 ## Usage
@@ -33,6 +32,8 @@ or by typing `exit` when prompted.
   - timeElapsed - 30.5
   - packetsSent - 23
   - packetsReceived - 21
+- Task scheduler can be run interactively (i.e. needs user input to terminate) or non-interactively 
+(where it can be terminated at any time by calling stop() from some callback)
         
 
 
@@ -62,8 +63,6 @@ All the development was done on macOS Sierra 10.12.2
 ### Prerequisite libraries
 You will need the following installed
 - boost
-- 
-
 
 ### Building
 The CMakeLists.txt is provided for you.
