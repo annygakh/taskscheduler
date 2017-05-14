@@ -63,6 +63,7 @@ All the development was done on macOS Sierra 10.12.2
 ### Prerequisite libraries
 You will need the following installed
 - boost
+- sqlite3
 
 ### Building
 The CMakeLists.txt is provided for you.
@@ -79,7 +80,7 @@ such as an error with creation of a socket, or with a connection of a socket, th
 to reflect that the task did not complete successfully.
 
 ## Testing
-There are currently no unit tests.
+There are currently no unit tests. Besides adhering to the 'testing-as-I-go' approach, 
 I have tested the program by launching the `taskscheduler` and inspecting packets in WireShark.
 I was looking at the logs
 ```
