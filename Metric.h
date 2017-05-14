@@ -8,6 +8,7 @@
 #include <list>
 #include <string>
 
+// This class is used to store information that needs to be inserted into the database.
 class Metric {
 private:
     std::string  m_taskName;

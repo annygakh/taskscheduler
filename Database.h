@@ -9,6 +9,7 @@
 #include "Log.h"
 #include <list>
 
+// This class is used for communicating with the database.
 class Database {
 private:
     /*
@@ -45,6 +46,9 @@ private:
      * */
     bool executeStm(std::string & stm, std::string & error);
 
+    /*
+     * Checks if the column exists in tableName.
+     * */
     bool columnExists(std::string &tableName, std::string &colName);
 
 public:
@@ -73,7 +77,7 @@ public:
     bool createTable(std::string &tableName);
 
     /*
-     * Create a table to store aggregate metrics.
+     * Create a table to store aggregate values for each metric.
      * */
     bool createAggregateMetricTable();
 

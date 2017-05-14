@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 
+// This task is used for creating tasks that will be scheduled in task scheduler.
 class Task {
 private:
     /*

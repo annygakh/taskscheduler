@@ -128,12 +128,12 @@ public:
     void cancelTask(Task * task);
 
     /*
-     * Start the task scheduler.
+     * Start the task scheduler. Returns when the task scheduler has finished running.
      * */
     void start();
 
     /*
-     * Stops the task scheduler if not running it interactively.
+     * Initiates termination of task scheduler.
      * */
     void stop();
 
