@@ -36,22 +36,22 @@ test_aggregate_value()
     task_name=$1
     metric_type=$2
     metric_name=$3
-    output_aggregate="$(sqlite3 db.db 'select * from aggregateMetrics
+    output_aggregate="$(sqlite3 "${DB_NAME}" 'select * from aggregateMetrics
         where taskName = "'"${task_name}"'"
         and metricType = "'"${metric_type}"'"
         and colName = "'"${metric_name}"'"' \
         | awk -F\| '{printf "%s\n", $4}')"
     if [ "$metric_type" = "avg" ]; then
-        output_db="$(sqlite3 db.db 'select round(avg('"${metric_name}"'),2) from '"${task_name}"'')"
+        output_db="$(sqlite3 "${DB_NAME}" 'select round(avg('"${metric_name}"'),2) from '"${task_name}"'')"
     else
-        output_db="$(sqlite3 db.db 'select '"${metric_type}"'('"${metric_name}"') from '"${task_name}"'')"
+        output_db="$(sqlite3 "${DB_NAME}" 'select '"${metric_type}"'('"${metric_name}"') from '"${task_name}"'')"
     fi
 
 
     if [ "$output_aggregate" != "$output_db" ]; then
-        echo "${metric_type} value for metric ${metric_name} for ${task_name} is NOT up to date"
+        echo "In ${DB_NAME} ${metric_type} value for metric ${metric_name} for ${task_name} is NOT up to date"
     else
-        echo "${metric_type} value for metric ${metric_name} for ${task_name} is up to date"
+        echo "In ${DB_NAME} ${metric_type} value for metric ${metric_name} for ${task_name} is up to date"
     fi
 }
 
