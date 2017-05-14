@@ -1,13 +1,15 @@
 #!/bin/sh
-# This script runs the taskscheduler on the database you specify,
-# and then runs queries on the database to ensure that aggregate values are all up to date
-# even after the taskscheduler is run several times and new metrics have been inserted.
+# This script runs the taskscheduler with the database name you provide as the argument.
+#  When the taskscheduler stops executing after a pre-programmed (by the script) number of seconds,
+#  the script runs queries on that database
+#  to ensure that aggregate values are all up to date.
+#  You can run the script several times on the same database, to ensure that aggregate values get updated,
+#  even after new metrics have been inserted.
 
-
-# FIRST set your script to be executable
-# $ chmod +x test-aggregate-values.sh
-# THEN build your taskscheduler executable and cd into the directory where it is
-# THEN run this script
+#  - Set your script to be executable
+#  `chmod +x test-aggregate-values.sh`
+#  - Build your taskscheduler executable
+#  - Run this script in the same folder where your executable is
 
 # check num of args
 if [ "$#" -ne 1 ]; then
