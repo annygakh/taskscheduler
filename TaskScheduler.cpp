@@ -73,18 +73,17 @@ void TaskScheduler::threadTask(Task * task)
     }
 }
 
-void TaskScheduler::insertMetric(Metric & metric, std::unordered_map<std::string, int> & tableColsInited)
+void TaskScheduler::insertMetric(Metric & metric)
 {
     std::string taskName = metric.getTaskName();
     std::unordered_map<std::string, double> rawMetrics = metric.getRawMetrics();
-    bool needToAlterTable = tableColsInited.find(taskName) == tableColsInited.end();
+    bool needToAlterTable = m_tasksMetrics.find(taskName) == m_tasksMetrics.end();
     if (needToAlterTable)
     {
         for (auto i : rawMetrics)
         {
             m_db.addColumn(taskName, i.first);
         }
-        tableColsInited.insert({taskName, rawMetrics.size()}); // the second element does not matter;
         m_tasksMetrics.insert({taskName, rawMetrics});
     }
     m_db.insertRecord(taskName, rawMetrics);
@@ -92,29 +91,18 @@ void TaskScheduler::insertMetric(Metric & metric, std::unordered_map<std::string
 
 void TaskScheduler::databaseThreadTask()
 {
-    // Recall that each task has a variable number of metrics we need to keep track of,
-    // in the database. It's not ideal for the user to have to specify how many
-    // metrics each task will output, at compile time, when creating a Task.
-    // At the beginning of the task scheduler initialization,
-    // we create a table for each task, with just one metric column.
-    // After we execute the task for the first time, the return value thereof is a list,
-    // the length of which indicates how many columns in total we need to have for that specific table
-    // to store metrics. When we insert the metric of that task into the database for the first time,
-    // we can alter the table to add more columns.
-    // We can keep track of which tables we have altered to support the number of metrics the task outputs.
-    std::unordered_map<std::string, int> tableColsInited;
     Metric metric;
     while (!m_exit)
     {
         while (m_metricsQ.pop(metric))
         {
-            insertMetric(metric, tableColsInited);
+            insertMetric(metric);
         }
     }
 
     while (m_metricsQ.pop(metric))
     {
-        insertMetric(metric, tableColsInited);
+        insertMetric(metric);
     }
     m_log.logMessage("Finished inserting all of the outstanding metrics into the database\n");
 

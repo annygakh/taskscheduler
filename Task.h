@@ -14,7 +14,11 @@ private:
      * Assumptions: - the output of the tasks is a map of metrics(doubles) with corresponding names.
      * */
     std::unordered_map<std::string, double> (*m_funcToExec)(void);
+
+    // How often the task should be run, in seconds.
     long m_interval;
+
+    // Name of the task, necessary to store metrics in the database under the name of the task
     std::string m_name;
 
 public:

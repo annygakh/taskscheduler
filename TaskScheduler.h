@@ -53,6 +53,17 @@ private:
 
     // Stores the names of tasks and the corresponding metrics they output.
     // Needed for altering the tables for each task, or for updating aggregate metrics.
+    //
+    // Recall that each task has a variable number of metrics we need to keep track of,
+    // in the database. It's not ideal for the user to have to specify how many
+    // metrics each task will output, at compile time, when creating a Task.
+    // At the beginning of the task scheduler initialization,
+    // we create a table for each task, with no columns besides ID column.
+    // After we execute the task for the first time, the return value thereof is a map,
+    // the length of which indicates how many columns in total we need to have for that specific table
+    // to store metrics. When we insert the metric of that task into the database for the first time,
+    // we can alter the table to add more columns.
+    // After we alter the table, we can insert it into the map, to keep track of which tables have been altered.
     std::unordered_map<std::string, std::unordered_map<std::string, double>> m_tasksMetrics;
 
     //
@@ -61,9 +72,9 @@ private:
 
     /*
      * Inserts a metric record into the database.
-     * TODO remove tableColsInited
+     *
      * */
-    void insertMetric(Metric & metric, std::unordered_map<std::string, int> & tableColsInited);
+    void insertMetric(Metric & metric);
 
     /*
      * Routine designated for the thread responsible for reading the user's command.
