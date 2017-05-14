@@ -57,6 +57,7 @@ will be logged in Database_Records_log.txt
 - Any actions that fail to be executed by the database, 
 will be logged in Database_Actions_log.txt
 - Any other messages will be logged in Log_file.txt
+- Log messages will either be appended to a new file or to existing files with the same log names.
 
 ## Development
 All the development was done on macOS Sierra 10.12.2
