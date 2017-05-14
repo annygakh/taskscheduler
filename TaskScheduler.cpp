@@ -126,6 +126,7 @@ void TaskScheduler::userInputThreadTask()
 
 void TaskScheduler::start()
 {
+    m_log.logMessage("Starting task scheduler\n");
     std::thread dbThread(&TaskScheduler::databaseThreadTask, this);
     std::thread userInputThread;
     if (m_mode == 0)
