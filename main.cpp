@@ -30,9 +30,10 @@ int main(int argc, char ** argv) {
     }
 
     ts = new TaskScheduler(argv[1], 0);
-    signal(SIGABRT, sigHandler);
-    signal(SIGINT, sigHandler);
-    signal(SIGTERM, sigHandler);
+
+    signal(SIGABRT, stopHandler);
+    signal(SIGINT, stopHandler);
+    signal(SIGTERM, stopHandler);
 
     t1 = new Task("connectToTcpServer", connectToTcpServer, 5);
     t2 = new Task("icmpPing", &Ping::ping, 7);
@@ -63,14 +64,6 @@ void destroy()
     delete t1;
     delete t2;
     std::cout << "\nTask scheduler terminated successfully.\n";
-}
-
-
-void sigHandler(int signum)
-{
-    std::cout << "\nExiting task scheduler\n";
-    destroy();
-    exit(0);
 }
 
 // Can be indicated as a callback to stop the task scheduler after a certain number of time has passed.

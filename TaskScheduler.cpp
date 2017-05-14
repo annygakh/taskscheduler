@@ -112,17 +112,13 @@ void TaskScheduler::databaseThreadTask()
 void TaskScheduler::userInputThreadTask()
 {
     std::cout << "Task scheduler is running now.\n";
-    std::cout << "Enter 'exit' to quit task scheduler: ";
 
     std::string userCommand;
-
-    std::cin >> userCommand;
-    while (userCommand != "exit")
-    {
-        std::cout << "Unknown command. Enter 'exit' to quit task scheduler: ";
+    do {
+        std::cout << "Enter 'exit' or Ctrl-C and press enter to quit task scheduler: ";
         std::cin >> userCommand;
+    } while (userCommand != "exit" && !m_exit);
 
-    }
     std::cout << "Exiting task scheduler\n";
     m_exit = true;
 }
@@ -186,8 +182,6 @@ void TaskScheduler::deinitialize()
 
 void TaskScheduler::stop()
 {
-    if (m_mode == 1)
-    {
-        m_exit = true;
-    }
+    m_exit = true;
+    m_log.logMessage("Stop command has been initiated\n");
 }
