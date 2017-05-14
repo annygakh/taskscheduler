@@ -12,21 +12,6 @@
 
 #include "Ping.cpp"
 
-double foo1 = 0, bar1 = 0, bar2 = 0.6;
-std::unordered_map<std::string, double> foo(void)
-{
-    std::unordered_map<std::string, double> metrics;
-    metrics.insert({"foo1", foo1++});
-    return metrics;
-}
-std::unordered_map<std::string, double> bar(void)
-{
-    std::unordered_map<std::string, double> metrics;
-    metrics.insert({"bar1", bar1++});
-    metrics.insert({"bar2", bar2++});
-    return metrics;
-}
-
 // Forward declarations
 std::unordered_map<std::string, double> connectToTcpServer(void);
 void destroy();
@@ -35,7 +20,7 @@ void stopHandler(int signum);
 
 
 TaskScheduler * ts;
-Task * t1, * t2, * t3, *t4;
+Task * t1, * t2;
 
 int main(int argc, char ** argv) {
     if (argc < 2)
@@ -49,17 +34,13 @@ int main(int argc, char ** argv) {
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
 
-    t1 = new Task("foo", foo, 2);
-    t2 = new Task("bar", bar, 4);
-    t3 = new Task("connectToTcpServer", connectToTcpServer, 5);
-    t4 = new Task("icmpPing", &Ping::ping, 7);
+    t1 = new Task("connectToTcpServer", connectToTcpServer, 5);
+    t2 = new Task("icmpPing", &Ping::ping, 7);
     ts->addTask(t1);
     ts->addTask(t2);
-    ts->addTask(t3);
-    ts->addTask(t4);
 
-    ts->changeTaskOrder(t4, 0); // uncomment this to change the order of tasks
-    ts->cancelTask(t1); // uncomment this to cancel a task
+//    ts->changeTaskOrder(t2, 0); // uncomment this to change the order of tasks
+//    ts->cancelTask(t1); // uncomment this to cancel a task
 
     if (!ts->initialize())
     {
@@ -81,7 +62,6 @@ void destroy()
     delete ts;
     delete t1;
     delete t2;
-    delete t3;
     std::cout << "\nTask scheduler terminated successfully.\n";
 }
 
