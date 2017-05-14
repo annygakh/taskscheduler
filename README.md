@@ -89,13 +89,18 @@ and ensuring that whenever icmpPing() was printed in the log file, a new ICMP pa
 
 Similarly, I watched the TCP packets for connectToTcpServer().
 
-You can verify that the aggregate values are always up to date by running `taskscheduler` several times,
-and then running the following queries and ensuring the output is the same
-```
-sqlite3 yourDb.db 'select * from aggregateMetrics where taskName = "icmpPing"'
-sqlite3 yourDb.db 'select avg(timeElapsed) from icmpPing'
-sqlite3 yourDb.db 'select max(timeElapsed) from icmpPing'
-```
+### Testing aggregate values
+There is a script `test-aggregate-values.sh` that runs the taskscheduler with the database name you provide as the argument.
+When the taskscheduler stops executing after a pre-programmed (by the script) number of seconds, the script runs queries on that database 
+to ensure that aggregate values are all up to date. 
+You can run the script several times on the same database, to ensure that aggregate values get updated,
+even after new metrics have been inserted.
+
+- Set your script to be executable
+`chmod +x test-aggregate-values.sh`
+- Build your taskscheduler executable
+- Run this script in the same folder where your executable is
+
 ## Authors
 Anny Gakhokidze
 
